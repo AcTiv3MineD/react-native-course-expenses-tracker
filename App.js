@@ -1,6 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 
+// state management
+import { store } from './store/redux/store';
+import { Provider } from 'react-redux';
+
 // navigation
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -57,27 +61,29 @@ export default function App() {
   return (
     <>
       <StatusBar style="light" />
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
-            headerTintColor: 'white',
-          }}
-        >
-          <Stack.Screen
-            name="ExpensesOverview"
-            component={ExpensesOverview}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="ManageExpense"
-            component={ManageExpense}
-            options={{
-              presentation: 'modal',
+      <Provider store={store}>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
+              headerTintColor: 'white',
             }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+          >
+            <Stack.Screen
+              name="ExpensesOverview"
+              component={ExpensesOverview}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="ManageExpense"
+              component={ManageExpense}
+              options={{
+                presentation: 'modal',
+              }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </Provider>
     </>
   );
 }
