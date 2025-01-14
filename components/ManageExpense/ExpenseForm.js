@@ -1,48 +1,59 @@
 import { StyleSheet, View } from "react-native";
 import Input from "./Input";
+import { useState } from "react";
 
-function ExpenseForm() {
-    function amountChangedHandler() {
-        //
-    }
+function ExpenseForm({onCancel, onDelete, onSubmit, action}) {
+    const [inputValues, setInputValues] = useState({
+        amount: '',
+        date: '',
+        description: '',
+    });
 
-    function dateChangedHandler() {
-        //
-    }
-
-    function descriptionChangedHandler() {
-        //
+    function inputChangedHandler(identifier, value) {
+        setInputValues((currentExpenseValues) => {
+            return {
+                ...currentExpenseValues,
+                [identifier]: value,
+            }
+        });
     }
 
     return (
         <View style={styles.container}>
-            <View style={styles.inputsRow}>
+            <View>
+                <View style={styles.inputsRow}>
+                    <Input
+                        style={styles.fullWidthInput}
+                        label="Amount"
+                        textInputConfig={{
+                            keyboardType : "decimal-pad",
+                            onChangeText: inputChangedHandler.bind(this, 'amount'),
+                            value: inputValues.amount,
+                        }}
+                    />
+                    <Input
+                        label="Date"
+                        style={styles.fullWidthInput}
+                        textInputConfig={{
+                            placeholder: "YYYY-MM-DD",
+                            onChangeText: inputChangedHandler.bind(this, 'date'),
+                            maxLength: 10,
+                            value: inputValues.date,
+                        }}
+                    />
+                </View>
                 <Input
-                    label="Amount"
+                    label="Description"
                     textInputConfig={{
-                        keyboardType : "decimal-pad",
-                        onChangeText: amountChangedHandler,
-                    }}
-                />
-                <Input
-                    label="Date"
-                    textInputConfig={{
-                        placeholder: "YYYY-MM-DD",
-                        onChangeText: dateChangedHandler,
-                        maxLength: 10,
+                        multiline: true,
+                        autoCorrect: false,
+                        placeholder: "What you paid?",
+                        onChangeText: inputChangedHandler.bind(this, 'description'),
+                        maxLength: 255,
+                        value: inputValues.description,
                     }}
                 />
             </View>
-            <Input
-                label="Description"
-                textInputConfig={{
-                    multiline: true,
-                    autoCorrect: false,
-                    placeholder: "What you paid?",
-                    onChangeText: descriptionChangedHandler,
-                    maxLength: 255,
-                }}
-            />
         </View>
     )
 }
@@ -52,6 +63,9 @@ export default ExpenseForm;
 const styles = StyleSheet.create({
     container: {
         marginVertical: 10,
+    },
+    fullWidthInput: {
+        flex: 1,
     },
     inputsRow: {
         flexDirection: 'row',
