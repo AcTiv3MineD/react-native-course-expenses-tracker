@@ -5,7 +5,7 @@ function AllExpenses() {
   const expenses = useSelector(state => state.expenses.expenses);
 
   return (
-    <ExpensesOutput expensesPeriod="Total" expenses={expenses} />
+    <ExpensesOutput expensesPeriod="Total" expenses={expenses} fallbackText='No expenses logged, time to add some!' />
   );
 }
 
