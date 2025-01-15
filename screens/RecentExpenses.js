@@ -4,15 +4,23 @@ import { useEffect, useState } from 'react';
 import { setExpenses } from '../store/redux/expenses';
 import { fetchExpenses } from '../utils/http';
 import LoadingOverlay from '../components/UI/LoadingOverlay';
+import ErrorOverlay from '../components/UI/ErrorOverlay';
 
 function RecentExpenses() {
   const [isFetching, setIsFetching] = useState(true);
+  const [errorMessage, setErrorMessage] = useState();
+
   const dispatch = useDispatch();
   useEffect(() => {
     async function getExpenses() {
       setIsFetching(true);
-      const expenses = await fetchExpenses();
-      dispatch(setExpenses(expenses));
+      try {
+        const expenses = await fetchExpenses();
+        dispatch(setExpenses(expenses));
+      }
+      catch(error) {
+        setErrorMessage('Could not fetch expenses!');
+      }
       setIsFetching(false);
     }
 
@@ -20,6 +28,10 @@ function RecentExpenses() {
   }, [dispatch]);
 
   const allExpenses = useSelector((state) => state.expenses.expenses);
+
+  if(errorMessage && !isFetching) {
+    return <ErrorOverlay message={errorMessage} />;
+  }
 
   if(isFetching) {
     return <LoadingOverlay />;

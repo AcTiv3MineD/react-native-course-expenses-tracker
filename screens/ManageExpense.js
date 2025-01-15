@@ -6,12 +6,14 @@ import { addExpense, deleteExpense, updateExpense } from '../store/redux/expense
 import ExpenseForm from '../components/ManageExpense/ExpenseForm';
 import { storeExpense, deleteExpense as deleteExpenseAPI } from '../utils/http';
 import LoadingOverlay from '../components/UI/LoadingOverlay';
+import ErrorOverlay from '../components/UI/ErrorOverlay';
 
 function ManageExpense({route, navigation}) {
   let expense = {};
   const action = route.params.action;
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState();
 
   if(action == 'manage') {
     expense = useSelector(state => state.expenses.expenses.find(expense => expense.id === route.params.id));
@@ -36,22 +38,43 @@ function ManageExpense({route, navigation}) {
 
     setIsSubmitting(true);
     if(action === 'manage') {
-      dispatch(updateExpense({id: expense.id, ...expenseObject}));
-      updateExpense(expense.id, expenseObject);
+      try {
+        updateExpense(expense.id, expenseObject);
+        dispatch(updateExpense({id: expense.id, ...expenseObject}));
+        navigation.goBack();
+      }
+      catch(error) {
+        setError('Could not update expense!');
+      }
     }
     else {
-      const id = await storeExpense(expenseObject);
-      dispatch(addExpense({id, ...expenseObject}));
+      try {
+        const id = await storeExpense(expenseObject);
+        dispatch(addExpense({id, ...expenseObject}));
+        navigation.goBack();
+      }
+      catch(error) {
+        setError('Could not add the expense!');
+      }
     }
-
-    navigation.goBack();
+    setIsSubmitting(false);
   }
 
   async function deleteHandler() {
-    setIsSubmitting(true);
-    await deleteExpenseAPI(route.params.id);
-    dispatch(deleteExpense(route.params.id));
-    navigation.goBack();
+    try {
+      setIsSubmitting(true);
+      await deleteExpenseAPI(route.params.id);
+      dispatch(deleteExpense(route.params.id));
+      navigation.goBack();
+    }
+    catch(error) {
+      setIsSubmitting(false);
+      setError('Could not delete the expense!');
+    }
+  }
+
+  if(error && !isSubmitting) {
+    return <ErrorOverlay message={error} />;
   }
 
   if(isSubmitting) {
