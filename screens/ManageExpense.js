@@ -4,6 +4,7 @@ import { GlobalStyles } from '../constants/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { addExpense, deleteExpense, updateExpense } from '../store/redux/expenses';
 import ExpenseForm from '../components/ManageExpense/ExpenseForm';
+import { storeExpense, deleteExpense as deleteExpenseAPI } from '../utils/http';
 
 function ManageExpense({route, navigation}) {
   let expense = {};
@@ -25,27 +26,27 @@ function ManageExpense({route, navigation}) {
   }
 
   function submitHandler(expenseData) {
+    const expenseObject = {
+      description: expenseData.description,
+      amount: expenseData.amount,
+      date: expenseData.date,
+    };
+
     if(action === 'manage') {
-      dispatch(updateExpense({
-        id: expense.id,
-        description: expenseData.description,
-        amount: expenseData.amount,
-        date: expenseData.date,
-      }));
+      dispatch(updateExpense({id: expense.id, ...expenseObject}));
+      updateExpense(expense.id, expenseObject);
     }
     else {
-      dispatch(addExpense({
-        id: Math.random(),
-        description: expenseData.description,
-        amount: expenseData.amount,
-        date: expenseData.date,
-      }));
+      const id = storeExpense(expenseObject);
+      expenseObject.id = id;
+      dispatch(addExpense(expenseObject));
     }
   
     navigation.goBack();
   }
 
-  function deleteHandler() {
+  async function deleteHandler() {
+    await deleteExpenseAPI(route.params.id);
     dispatch(deleteExpense(route.params.id));
     navigation.goBack();
   }

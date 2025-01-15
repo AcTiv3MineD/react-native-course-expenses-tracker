@@ -1,7 +1,19 @@
 import ExpensesOutput from '../components/ExpensesOutput/ExpensesOutput';
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setExpenses } from '../store/redux/expenses';
+import { fetchExpenses } from '../utils/http';
+import { useEffect } from 'react';
 
-function AllExpenses() {
+function AllExpenses() { 
+  const dispatch = useDispatch();
+  useEffect(() => {
+    async function getExpenses() {
+      const expenses = await fetchExpenses();
+      dispatch(setExpenses(expenses));
+    }
+
+    getExpenses();
+  }, [dispatch]);
   const expenses = useSelector(state => state.expenses.expenses);
 
   return (
