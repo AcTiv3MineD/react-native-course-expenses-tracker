@@ -3,19 +3,27 @@ import ExpensesOutput from '../components/ExpensesOutput/ExpensesOutput';
 import { useEffect, useState } from 'react';
 import { setExpenses } from '../store/redux/expenses';
 import { fetchExpenses } from '../utils/http';
+import LoadingOverlay from '../components/UI/LoadingOverlay';
 
 function RecentExpenses() {
+  const [isFetching, setIsFetching] = useState(true);
   const dispatch = useDispatch();
   useEffect(() => {
     async function getExpenses() {
+      setIsFetching(true);
       const expenses = await fetchExpenses();
       dispatch(setExpenses(expenses));
+      setIsFetching(false);
     }
 
     getExpenses();
   }, [dispatch]);
 
   const allExpenses = useSelector((state) => state.expenses.expenses);
+
+  if(isFetching) {
+    return <LoadingOverlay />;
+  }
 
   const recentExpenses = allExpenses.filter((expense) => {
     const expenseDate = new Date(expense.date);
